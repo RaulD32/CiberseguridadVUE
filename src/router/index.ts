@@ -1,38 +1,46 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LoginView from '@/views/LoginView.vue'
-import RegisterView from '@/views/RegisterView.vue'
-import NotFoundView from '@/views/NotFoundView.vue'
+import { createRouter, createWebHistory } from "vue-router";
+import Login from "../views/LoginView.vue";
+import Register from "../views/RegisterView.vue";
+import Welcome from "../views/WelcomeView.vue";
+import Notfound from "../views/NotfoundView.vue";
+// import HomeView from '../views/HomeView.vue'
+
+const routes = [
+  { 
+    path: '/',
+    name: 'welcome',
+    component: Welcome,
+  },
+  { 
+    path: "/login", 
+    component: Login 
+  },
+  { 
+    path: "/register", 
+    component: Register 
+  },
+  { path: "/welcome", 
+    component: Welcome, 
+    meta: { requiresAuth: true } 
+  },
+  { 
+    path: "/:pathMatch(.*)*", 
+    component: Notfound },
+];
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: RegisterView,
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: LoginView,
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      name: 'NotFound',
-      component: NotFoundView,
-    },
-  ],
-})
+  history: createWebHistory(),
+  routes,
+});
 
-router.beforeEach((a, b, next) => {
-  //Validaciones dependiendo del contexto
-  next()
-})
+// Protección de rutas
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("token");
+  if (to.meta.requiresAuth && !token) {
+    next("/login");
+  } else {
+    next();
+  }
+});
 
-export default router
+export default router;
